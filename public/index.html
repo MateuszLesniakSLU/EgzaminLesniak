@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title><!DOCTYPE html>
+        <html lang="en">
+        <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Currency Exchange Rates</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>Currency Exchange Rates</h1>
+    <label for="baseCurrency">Select base currency:</label>
+    <select id="baseCurrency" onchange="fetchData()">
+        <option value="EUR">EUR</option>
+        <option value="USD">USD</option>
+        <option value="PLN">PLN</option>
+        <option value="JPY">JPY</option>
+    </select>
+    <canvas id="exchangeRateChart"></canvas>
+    <script>
+        let chart;
+        const currencies = ["USD", "PLN", "EUR", "JPY"];
+
+        async function fetchData() {
+            const baseCurrency = document.getElementById('baseCurrency').value;
+            const response = await fetch(`/api/rates?base=${baseCurrency}&symbols=${currencies.join(',')}`);
+            const data = await response.json();
+            const rates = data.rates;
+            updateChart(baseCurrency, rates);
+        }
+
+        function updateChart(baseCurrency, rates) {
+            const labels = Object.keys(rates);
+            const dataPoints = Object.values(rates);
+
+            if (chart) {
+                chart.destroy();
+            }
+
+            const ctx = document.getElementById('exchangeRateChart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: `Exchange rates for 1 ${baseCurrency}`,
+                        data: dataPoints,
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true
+                        }
+                    }
+                }
+            });
+        }
+
+        fetchData();
+    </script>
+</body>
+</html>
